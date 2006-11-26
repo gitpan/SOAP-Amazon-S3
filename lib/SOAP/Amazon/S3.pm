@@ -5,26 +5,26 @@ use strict;
 use Time::Piece;
 use Digest::HMAC_SHA1;
 use MIME::Base64 qw(encode_base64 decode_base64);
-use XML::MyXML qw(tidy_xml simple_to_xml xml_to_object);
-use SOAP::MySOAP;
+use XML::MyXML 0.052 qw(tidy_xml simple_to_xml xml_to_object);
+use SOAP::MySOAP 0.023;
 use Carp;
 use Data::Dumper;
 
 =head1 NAME
 
-SOAP::Amazon::S3 - A module interfacing with Amazon S3 through SOAP
+SOAP::Amazon::S3 - A module for interfacing with Amazon S3 through SOAP
 
 =head1 VERSION
 
-Version 0.02
+Version 0.022
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.022';
 
 =head1 SYNOPSIS
 
-An object-oriented interface to handle your Amazon S3 storage. (Still in experimental mode, although functional)
+An object-oriented interface to handle your Amazon S3 storage. (Still experimental, although functional)
 
     use SOAP::Amazon::S3;
 
