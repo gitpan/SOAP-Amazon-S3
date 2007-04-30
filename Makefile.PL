@@ -13,7 +13,7 @@ WriteMakefile(
 		'Time::Piece' => 0,
 		'Digest::HMAC_SHA1' => 0,
 		'MIME::Base64' => 0,
-		'XML::MyXML' => 0.052,
+		'XML::MyXML' => 0.09766,
 		'SOAP::MySOAP' => 0.023,
 		'Carp' => 0,
 		'Data::Dumper' => 0,

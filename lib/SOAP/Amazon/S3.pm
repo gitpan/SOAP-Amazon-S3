@@ -16,11 +16,11 @@ SOAP::Amazon::S3 - A module for interfacing with Amazon S3 through SOAP
 
 =head1 VERSION
 
-Version 0.023
+Version 0.0231
 
 =cut
 
-our $VERSION = '0.023';
+our $VERSION = '0.0231';
 
 =head1 SYNOPSIS
 
@@ -94,9 +94,11 @@ sub _send {
 	push @params, ( 'Timestamp' => $timestamp );
 	push @params, ( 'Signature' => $signature );
 
-	my $xml_body = simple_to_xml(\@params);
+	my $xml_body = simple_to_xml([ "tns:$command xsi:nil=\"true\"" => \@params ]);
 
 
+		# <tns:$command xsi:nil="true">
+		# </tns:$command>
 
 	my $xml = <<EOB;
 <?xml version="1.0" encoding="UTF-8"?>
@@ -110,11 +112,9 @@ sub _send {
 	xmlns:tns="http://s3.amazonaws.com/doc/2006-03-01/" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<soap:Body>
-		<tns:$command xsi:nil="true">
 EOB
 	$xml .= $xml_body."\n";
 	$xml .= <<EOB;
-		</tns:$command>
 	</soap:Body>
 </soap:Envelope>
 EOB
