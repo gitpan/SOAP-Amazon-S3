@@ -16,11 +16,11 @@ SOAP::Amazon::S3 - A module for interfacing with Amazon S3 through SOAP
 
 =head1 VERSION
 
-Version 0.0231
+Version 0.03
 
 =cut
 
-our $VERSION = '0.0231';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -139,7 +139,8 @@ EOB
 		confess;
 	}
 
-	return $self->{'soaper'}->{'response'}->content;
+	my $ret = $self->{'soaper'}->{'response'}->content;
+	return $ret if defined wantarray;
 }
 
 =head1 OBJECT METHODS
@@ -255,9 +256,9 @@ sub name {
 	return $self->{'Name'};
 }
 
-=head2 $bucket->putobject( $obj_key, $obj_data, { 'Content-Type' => $mime_type } )
+=head2 $bucket->putobject( $obj_key, $obj_data, { 'Content-Type' => $mime_type, metadata => {color=>'red', feel=>'soft'} } )
 
-Creates an object in the S3 bucket, named $obj_key. The {} section is optional, and may contain the Content-Type (defaults to 'text/plain'). Returns an ...::S3::Object type object pointing to the object just created, if successful.
+Creates an object in the S3 bucket, named $obj_key. The {} section is optional, and may contain the Content-Type (defaults to 'text/plain') and a metadata hashref. Returns an ...::S3::Object type object pointing to the object just created, if successful.
 
 =cut
 
@@ -267,10 +268,12 @@ sub putobject {
 	my $data = shift;
 	my $options = shift || {};
 
-	my $mimetype = $options->{'Content-Type'} || 'text/plain';
+	my $metadata = $options->{'metadata'} || {};
+	$metadata->{'Content-Type'} ||= $options->{'Content-Type'} || 'text/plain';
+	$metadata = [ map {(MetaData => [Name => $_, Value => $metadata->{$_}])} keys %$metadata ];
 
 	my $s3 = $self->{'_s3'};
-	$s3->PutObjectInline( Bucket => $self->name, Key => $key, Metadata => [ Name => 'Content-Type', Value => $mimetype ], Data => MIME::Base64::encode_base64($data), ContentLength => length($data) );
+	$s3->PutObjectInline( Bucket => $self->name, Key => $key, @$metadata, Data => MIME::Base64::encode_base64($data), ContentLength => length($data) );
 	bless { _s3 => $s3, Bucket => $self->name, _bucket => $self, Key => $key }, 'SOAP::Amazon::S3::Object' unless $s3->{'error'};
 }
 
@@ -369,6 +372,17 @@ sub getdata {
 	return MIME::Base64::decode_base64($data);
 }
 
+=head2 $object->url
+
+Return the URL of the object
+
+=cut
+
+sub url {
+	my $self = shift;
+
+	return "http://s3.amazonaws.com/".$self->{'_bucket'}->name()."/".$self->name();
+}
 
 =head1 AUTHOR
 
@@ -408,13 +422,17 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=SOAP-Amazon-S3>
 
 L<http://search.cpan.org/dist/SOAP-Amazon-S3>
 
+=item * Module's RSS feed
+
+L<http://myperl.eu/permodule/SOAP-Amazon-S3>
+
 =back
 
 =head1 ACKNOWLEDGEMENTS
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 Alexander Karelas, all rights reserved.
+Copyright 2006-2007 Alexander Karelas, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
