@@ -16,11 +16,11 @@ SOAP::Amazon::S3 - A module for interfacing with Amazon S3 through SOAP
 
 =head1 VERSION
 
-Version 0.04
+Version 0.0401
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.0401';
 
 =head1 SYNOPSIS
 

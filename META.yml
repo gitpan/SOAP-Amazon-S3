@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         SOAP-Amazon-S3
-version:      0.04
+version:      0.0401
 version_from: lib/SOAP/Amazon/S3.pm
 installdirs:  site
 requires:
@@ -12,7 +12,7 @@ requires:
     SOAP::MySOAP:                  0.023
     Test::More:                    0
     Time::Piece:                   0
-    XML::MyXML:                    0.09766
+    XML::MyXML:                    0.098061
 
 distribution_type: module
 generated_by: ExtUtils::MakeMaker version 6.17

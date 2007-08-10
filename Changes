@@ -1,5 +1,8 @@
 Revision history for SOAP-Amazon-S3
 
+0.0401  Aug 10th, 2007
+        Fixed a minor bug - will now check dependencies better
+
 0.04    Aug 10th, 2007
         Implemented garbage-collection
 
