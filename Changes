@@ -1,7 +1,10 @@
 Revision history for SOAP-Amazon-S3
 
-0.03    June 23rd, 2007
-        Fixed bug where a warning message would appear ("Useless content call in void context")
+0.04    Aug 10th, 2007
+        Implemented garbage-collection
+
+0.03    Jun 23rd, 2007
+        Fixed bug that would cause a warning message to appear ("Useless content call in void context")
         $obj->url method added (returns the URL that an object can be accessed through)
         Added support for arbitrary metadata when creating an object (thanks to Jim Blomo)
 

@@ -5,7 +5,7 @@ use strict;
 use Time::Piece;
 use Digest::HMAC_SHA1;
 use MIME::Base64 qw(encode_base64 decode_base64);
-use XML::MyXML 0.052 qw(tidy_xml simple_to_xml xml_to_object);
+use XML::MyXML 0.098061 qw(tidy_xml simple_to_xml xml_to_object);
 use SOAP::MySOAP 0.023;
 use Carp;
 use Data::Dumper;
@@ -16,11 +16,11 @@ SOAP::Amazon::S3 - A module for interfacing with Amazon S3 through SOAP
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
@@ -136,10 +136,12 @@ EOB
 	if ($self->{'RaiseError'} and $self->{'error'}) {
 		print "\nAmazon returned Fault:\n";
 		print Dumper($self->{'error'}->simplify);
+		$obj->delete();
 		confess;
 	}
 
 	my $ret = $self->{'soaper'}->{'response'}->content;
+	$obj->delete();
 	return $ret if defined wantarray;
 }
 
@@ -156,6 +158,7 @@ sub listbuckets {
 	my $xml = $self->ListAllMyBuckets;
 	my $obj = &xml_to_object($xml);
 	my @buckets = map {$_->simplify} $obj->path("Body/ListAllMyBucketsResponse/ListAllMyBucketsResponse/Buckets/Bucket");
+	$obj->delete();
 	foreach my $bucket (@buckets) {
 		$bucket->{'_s3'} = $self;
 		$bucket->{'Name'} = $bucket->{'Bucket'}{'Name'};
@@ -235,6 +238,7 @@ sub list {
 	my $xml = $s3->ListBucket(Bucket => $self->{'Name'});
 	my $obj = &XML::MyXML::xml_to_object($xml);
 	my @objects = map {values %{$_->simplify}} $obj->path('Body/ListBucketResponse/ListBucketResponse/Contents');
+	$obj->delete();
 	foreach my $object (@objects) {
 		$object->{'_s3'} = $s3;
 		$object->{'Bucket'} = $self->{'Name'};
@@ -346,8 +350,9 @@ sub acl {
 		my @grants = $xml->path('Body/GetObjectAccessControlPolicyResponse/GetObjectAccessControlPolicyResponse/AccessControlList/Grant');
 		foreach my $grant (@grants) {
 			my $uri = $grant->path('Grantee/URI');
-			if ($uri and $uri->value eq 'http://acs.amazonaws.com/groups/global/AllUsers') { return 'public'; }
+			if ($uri and $uri->value eq 'http://acs.amazonaws.com/groups/global/AllUsers') { $xml->delete(); return 'public'; }
 		}
+		$xml->delete();
 		return 'private';
 	}
 }
@@ -368,7 +373,8 @@ sub getdata {
 	return if $s3->{'error'};
 	my $obj = &XML::MyXML::xml_to_object($resp);
 	my $data = $obj->path('Body/GetObjectResponse/GetObjectResponse/Data');
-	if ($data) { $data = $data->value; } else { return; }
+	if ($data) { $data = $data->value; } else { $obj->delete(); return; }
+	$obj->delete();
 	return MIME::Base64::decode_base64($data);
 }
 
